@@ -45,31 +45,31 @@ arrange_gauge <- function(x) {
   )
 }
 
-# reftable <- data_frame(
-#   bit_32 = c(0:9,letters[c(-9,-1,-12,-14)]),
-#   ico  = c("H","M",'nodata', rep(NA,29)),
-#   ico_name = c('HIDROLOGICA','METEOROLOGICA','nodata', rep(NA,29)),
-#   source = c('SENAMHI_HISTORIC','PISCOp','SENAMHI-REALTIME',
-#              'CLIMANDES','CR2','IDEAM','INAMHI','ANA', rep(NA,24)),
-#   state  = c('AUTOMATICA', 'DIFERIDO', 'REAL','nodata', rep(NA,28)),
-#   cate  = c('CO', 'CP', 'EAA', 'EAMA', 'EHA', 'EHMA',
-#             'EMA', 'HLG', 'HLM', 'MAP', 'PE','nodata',rep(NA,20)),
-#   cate_name = c('Climatica_Ordinaria',
-#                 'Climatica_Principal',
-#                 'Estacion_Agrometeorologica_Automatica',
-#                 'Estacion_Agrometeorologica_Automatica',
-#                 'Estacion_Hidrologica_Automatica',
-#                 'Estacion_Hidrometeorologica_Automatica',
-#                 'Estacion_Meteorologica_Automatica',
-#                 'Estacion_Hidrologica_Limnigrafica',
-#                 'Estacion_Hidrologica_Limnimetrica',
-#                 'Estacion_Meteorologica_Agricola_Principal',
-#                 'Estacion_Meteorologica_Proposito_Especifico',
-#                 'nodata',
-#                 rep(NA,20)
-#   )
-# )
-# write_csv(reftable,'phdcode.csv')
+reftable <- data_frame(
+  bit_32 = c(0:9,letters[c(-9,-1,-12,-14)]),
+  ico  = c("H","M",'nodata', rep(NA,29)),
+  ico_name = c('HIDROLOGICA','METEOROLOGICA','nodata', rep(NA,29)),
+  source = c('SENAMHI_HISTORIC','PISCOp','SENAMHI-REALTIME',
+             'CLIMANDES','CR2','IDEAM','INAMHI','ANA', rep(NA,24)),
+  state  = c('AUTOMATICA', 'DIFERIDO', 'REAL','nodata', rep(NA,28)),
+  cate  = c('CO', 'CP', 'EAA', 'EAMA', 'EHA', 'EHMA',
+            'EMA', 'HLG', 'HLM', 'MAP', 'PE','nodata',rep(NA,20)),
+  cate_name = c('Climatica_Ordinaria',
+                'Climatica_Principal',
+                'Estacion_Agrometeorologica_Automatica',
+                'Estacion_Agrometeorologica_Automatica',
+                'Estacion_Hidrologica_Automatica',
+                'Estacion_Hidrometeorologica_Automatica',
+                'Estacion_Meteorologica_Automatica',
+                'Estacion_Hidrologica_Limnigrafica',
+                'Estacion_Hidrologica_Limnimetrica',
+                'Estacion_Meteorologica_Agricola_Principal',
+                'Estacion_Meteorologica_Proposito_Especifico',
+                'nodata',
+                rep(NA,20)
+  )
+)
+write_csv(reftable,'phdcode.csv')
 
 encode_phd <- function(country,
                        ico,
@@ -157,4 +157,13 @@ decode_phd <- function(phd_code, phddf = "phdcode.csv") {
     length_name = length_name,
     last_letter = last_letter
   )
+}
+
+
+fix_col_fn <- function(name) {
+  fix_col_pp <- tryCatch(
+    expr = as.character(as.numeric(name)),
+    warning = function(w) name
+  )
+  return(fix_col_pp)
 }
