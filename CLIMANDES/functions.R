@@ -45,44 +45,52 @@ arrange_gauge <- function(x) {
   )
 }
 
-# reftable <- data_frame(
-#   bit_32 = c(0:9,letters[c(-9,-1,-12,-14)]),
-#   ico  = c("H","M",'nodata', rep(NA,29)),
-#   ico_name = c('HIDROLOGICA','METEOROLOGICA','nodata', rep(NA,29)),
-#   state  = c('AUTOMATICA', 'DIFERIDO', 'REAL','nodata', rep(NA,28)),
-#   cate  = c('CO', 'CP', 'EAA', 'EAMA', 'EHA', 'EHMA',
-#             'EMA', 'HLG', 'HLM', 'MAP', 'PE','nodata',rep(NA,20)),
-#   cate_name = c('Climatica_Ordinaria',
-#                 'Climatica_Principal',
-#                 'Estacion_Agrometeorologica_Automatica',
-#                 'Estacion_Agrometeorologica_Automatica',
-#                 'Estacion_Hidrologica_Automatica',
-#                 'Estacion_Hidrometeorologica_Automatica',
-#                 'Estacion_Meteorologica_Automatica',
-#                 'Estacion_Hidrologica_Limnigrafica',
-#                 'Estacion_Hidrologica_Limnimetrica',
-#                 'Estacion_Meteorologica_Agricola_Principal',
-#                 'Estacion_Meteorologica_Proposito_Especifico',
-#                 'nodata',
-#                 rep(NA,20)
-#   )
-# )
-# write_csv(reftable,"phdcode.csv")
-
+reftable <- data_frame(
+  bit_32 = c(0:9,letters[c(-9,-1,-12,-14)]),
+  ico  = c("H","M",'nodata', rep(NA,29)),
+  ico_name = c('HIDROLOGICA','METEOROLOGICA','nodata', rep(NA,29)),
+  source = c('SENAMHI_HISTORIC','PISCOp','SENAMHI-REALTIME',
+             'CLIMANDES','CR2','IDEAM','INAMHI','ANA', rep(NA,24)),
+  state  = c('AUTOMATICA', 'DIFERIDO', 'REAL','nodata', rep(NA,28)),
+  cate  = c('CO', 'CP', 'EAA', 'EAMA', 'EHA', 'EHMA',
+            'EMA', 'HLG', 'HLM', 'MAP', 'PE','nodata',rep(NA,20)),
+  cate_name = c('Climatica_Ordinaria',
+                'Climatica_Principal',
+                'Estacion_Agrometeorologica_Automatica',
+                'Estacion_Agrometeorologica_Automatica',
+                'Estacion_Hidrologica_Automatica',
+                'Estacion_Hidrometeorologica_Automatica',
+                'Estacion_Meteorologica_Automatica',
+                'Estacion_Hidrologica_Limnigrafica',
+                'Estacion_Hidrologica_Limnimetrica',
+                'Estacion_Meteorologica_Agricola_Principal',
+                'Estacion_Meteorologica_Proposito_Especifico',
+                'nodata',
+                rep(NA,20)
+  )
+)
+write_csv(reftable,'phdcode.csv')
 
 encode_phd <- function(country,
                        ico,
+                       source,
                        state,
                        category,
                        lat,
                        long,
                        name,
                        phddf = "phdcode.csv") {
-  
   phd_df <- read_csv(phddf)
   # ico
   ico_code <- phd_df %>%
     "["(phd_df$ico == ico, ) %>%
+    "[["("bit_32") %>%
+    na.omit() %>%
+    as.character()
+  
+  # source
+  source_code <- phd_df %>%
+    "["(phd_df$source == source, ) %>%
     "[["("bit_32") %>%
     na.omit() %>%
     as.character()
@@ -115,25 +123,30 @@ encode_phd <- function(country,
   
   # phd code
   sprintf(
-    "%s%s%s%s%s%s%s", country,
-    ico_code, state_code,
+    "%s%s%s%s%s%s%s%s", 
+    country,
+    ico_code, 
+    source_code,
+    state_code,
     category_code, geohash,
     length_name, last_letter
   )
 }
 
-
 decode_phd <- function(phd_code, phddf = "phdcode.csv") {
+  
   phd_df <- read_csv(phddf)
   country <- substr(phd_code, 1, 2)
+  
   ico <- phd_df[phd_df$bit_32 == substr(phd_code, 3, 3), "ico_name"][[1]]
-  state <- phd_df[phd_df$bit_32 == substr(phd_code, 4, 4), "state"][[1]]
-  category <- phd_df[phd_df$bit_32 == substr(phd_code, 5, 5), "cate"][[1]]
-  geohash <- substr(phd_code, 6, 18)
+  source <- phd_df[phd_df$bit_32 == substr(phd_code, 4, 4), "source"][[1]]
+  state <- phd_df[phd_df$bit_32 == substr(phd_code, 5, 5), "state"][[1]]
+  category <- phd_df[phd_df$bit_32 == substr(phd_code, 6, 6), "cate"][[1]]
+  geohash <- substr(phd_code, 7, 19)
   lat <- gh$decode(geohash)[[1]]
   lon <- gh$decode(geohash)[[2]]
-  length_name <- phd_df[phd_df$bit_32 == substr(phd_code, 19, 19), "bit_32"][[1]]
-  last_letter <- substr(phd_code, 20, 20)
+  length_name <- phd_df[phd_df$bit_32 == substr(phd_code, 20, 20), "bit_32"][[1]]
+  last_letter <- substr(phd_code, 21, 21)
   data_frame(
     country = country,
     ico = ico,
