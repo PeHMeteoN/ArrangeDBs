@@ -5,7 +5,6 @@ source("functions.R")
 data_dir <- "DECADE_database_sh/DECADE_detabase/DECADE_data_final_ACMANT/"
 variables <- c("PRCP", "TN", "TX")
 
-
 # 1. Precipitation --------------------------------------------------------
 pp_list <- sprintf("%s/%s/", data_dir, variables[1]) %>%
   list.files(

@@ -18,6 +18,7 @@ all_decade_codes <- unique(total_code$DECADECode)
 
 final_metadata_list <- list()
 meta_data_list <- list()
+
 for (z in 1:length(all_decade_codes)) {
   cat("processing: ", all_decade_codes[z])
   de_code <- all_decade_codes[z]
@@ -40,7 +41,6 @@ for (z in 1:length(all_decade_codes)) {
   min_date <- min(c(pp_data$date, tn_data$date, tx_data$date))
   max_date <- max(c(pp_data$date, tn_data$date, tx_data$date))
   max_sequence <- seq(min_date, max_date, "day")
-
 
   # PP
   if (length(pp_data) == 0) {
@@ -85,13 +85,14 @@ for (z in 1:length(all_decade_codes)) {
   code <- encode_phd(
     country = "bo",
     ico = "M",
+    source = 'CLIMANDES',
     state = "nodata",
     category = "nodata",
     lat = met_data$Latitude,
     long = met_data$Longitude,
     name = met_data$StationName
   )
-
+  
   final_db <- data_frame(
     GEOCODE = code,
     DATE = pp_complete$date,
@@ -101,7 +102,7 @@ for (z in 1:length(all_decade_codes)) {
   ) %>%
     pivot_longer(c(-GEOCODE, -DATE), names_to = "VARIABLE", values_to = "VALUE")
 
-  decode_data <- decode_phd(code)
+  decode_data <- decode_phd(phd_code = code)
 
   final_metadata <- data_frame(
     GEOCODE = code,
